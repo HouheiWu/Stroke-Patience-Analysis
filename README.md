@@ -1,6 +1,6 @@
 # Stroke-Patience-Analysis
 
-This project:
+This project will:
 * Discovered physiological, behavioral, and regional patterns of stroke patients from the dataset with
 Tableau and constructed regression models to predict patients at high risk of stroke in R.
 * Employed cluster comparison analysis to uncover relationships between stroke likelihood and
