@@ -1,0 +1,67 @@
+---
+title: "Project"
+author: "Houhei Wu"
+date: "11/18/2022"
+output: html_document
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(corrplot)
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(e1071)
+library(pROC)
+```
+## Data Preprocessing
+```{r, error=FALSE}
+df = read.csv("healthcare-dataset-stroke-data.csv")
+
+df = df %>% 
+  select(-id) %>% 
+  filter(gender != "Other") %>% 
+  mutate(bmi = as.numeric(bmi))
+
+df = df[complete.cases(df),]
+str(df)
+```
+## Train-Test Split
+
+```{r}
+set.seed(11)
+train = sample(1:nrow(df), nrow(df)*0.7)
+test = df[-train,]
+train = df[train,]
+```
+
+```{r}
+cor_m = cor(df[c("age","avg_glucose_level","bmi","hypertension","heart_disease")])
+corrplot(cor_m, type = "lower")
+```
+
+## Logistic Regression
+```{r}
+m = glm(stroke ~. ,data = train, family ="binomial")
+predict = predict(m,newdata = test[,1:10], type = "response")
+predict_stroke = ifelse(predict >= 0.5, 1, 0)
+confusionMatrix(table(predict_stroke,test$stroke))
+
+
+```
+
+
+## Decision Tree
+```{r}
+m2 = rpart(stroke ~., data = train,par = list(split = "information"), method = "class")
+rpart.plot(m2,1)
+confusionMatrix(table(predict(m2,test, "class"), test$stroke))
+
+```
+
+### Naive Bayes
+```{r}
+m3 = naiveBayes(stroke ~ ., data = train)
+confusionMatrix(table(predict(m3, test), test$stroke))
+```
+
